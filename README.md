@@ -1,10 +1,10 @@
-# [Nome do seu Projeto - Ex: API de Renegociações Financeiras]
+# API de Avaliação de Filmes
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Framework](https://img.shields.io/badge/framework-FastAPI-green)
 ![License](https://img.shields.io/badge/license-MIT-informational)
 
-Breve descrição de uma ou duas frases sobre o que este projeto faz. Ex: *API RESTful desenvolvida para gerenciar o processo de renegociações financeiras, processando dados de planilhas e expondo endpoints para consulta e manipulação.*
+API RESTful para uma plataforma de avaliação de filmes, permitindo que usuários cadastrados comentem, avaliem e favoritem seus filmes preferidos.
 
 ---
 
@@ -23,15 +23,15 @@ Breve descrição de uma ou duas frases sobre o que este projeto faz. Ex: *API R
 
 ## 📖 Sobre o Projeto
 
-Uma descrição mais detalhada do projeto. Explique o problema que ele resolve, suas principais funcionalidades e o contexto em que foi desenvolvido. Se ele consome dados de alguma fonte específica (como planilhas), mencione aqui.
+Esta API é o backend de um sistema de avaliação de filmes. Ela gerencia usuários, filmes, e as interações entre eles, como a publicação de críticas (comentário + nota) e a marcação de filmes como favoritos. A arquitetura foi projetada para ser escalável e de fácil manutenção.
 
 ### Principais Funcionalidades
 
-* API RESTful para operações de CRUD (Criar, Ler, Atualizar, Deletar).
-* Estrutura de projeto escalável e organizada.
-* Conexão com banco de dados SQLite para persistência de dados.
-* Validação de dados de entrada usando Pydantic.
-* Documentação interativa da API gerada automaticamente (Swagger UI e ReDoc).
+* **Gerenciamento de Usuários:** Cadastro e autenticação de usuários via token (ex: JWT).
+* **Listagem de Filmes:** Endpoints para listar filmes disponíveis e ver detalhes de um filme específico.
+* **Sistema de Avaliações:** Usuários autenticados podem postar uma crítica (comentário e nota de 1 a 5) para um filme.
+* **Sistema de Favoritos:** Usuários podem adicionar ou remover filmes de sua lista pessoal de favoritos.
+* **Documentação Interativa:** Interface Swagger UI e ReDoc gerada automaticamente para testes e visualização dos endpoints.
 
 ---
 
@@ -84,7 +84,7 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente local
     ```
 
 4.  **Configure as variáveis de ambiente:**
-    Crie um arquivo `.env` na raiz do projeto, copiando o arquivo de exemplo `.env.example`.
+    Crie um arquivo `.env` na raiz do projeto, copiando o arquivo de exemplo `.env.example`. Este arquivo pode conter chaves secretas para tokens, por exemplo.
     ```bash
     # No Windows (usando copy)
     copy .env.example .env
@@ -92,15 +92,15 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente local
     # No macOS/Linux (usando cp)
     cp .env.example .env
     ```
-    Abra o arquivo `.env` e ajuste as configurações se necessário. Para este projeto, a configuração padrão do SQLite deve funcionar imediatamente.
 
-    *(Nota: É uma boa prática criar um arquivo `.env.example` no seu repositório com as chaves necessárias, mas sem os valores sensíveis).*
+5.  **Inicialize o banco de dados:**
+    O banco de dados SQLite será criado e as tabelas serão geradas na primeira vez que a aplicação for executada.
 
 ---
 
 ## ▶️ Executando a Aplicação
 
-Com as dependências instaladas e o ambiente configurado, inicie o servidor de desenvolvimento:
+Com as dependências instaladas, inicie o servidor de desenvolvimento:
 
 ```bash
 uvicorn src.main:app --reload
@@ -112,7 +112,7 @@ A aplicação estará disponível em [http://127.0.0.1:8000](http://127.0.0.1:80
 
 ### Documentação Interativa da API
 
-Uma das grandes vantagens do FastAPI é a documentação automática. Acesse um dos links abaixo enquanto a aplicação estiver rodando:
+Acesse um dos links abaixo enquanto a aplicação estiver rodando para testar os endpoints:
 
 * **Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 * **ReDoc:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
@@ -121,17 +121,25 @@ Uma das grandes vantagens do FastAPI é a documentação automática. Acesse um 
 
 ## 🌐 Endpoints da API
 
-Aqui está uma lista dos principais endpoints disponíveis.
+Abaixo estão os principais grupos de endpoints disponíveis.
 
-| Método HTTP | Endpoint                  | Descrição                                         |
-| :---------- | :------------------------ | :------------------------------------------------ |
-| `GET`       | `/`                       | Retorna uma mensagem de boas-vindas.              |
-| `GET`       | `/status-banco`           | Verifica o status da conexão com o banco de dados.|
-| `POST`      | `/renegociacoes`          | Cria uma nova renegociação.                       |
-| `GET`       | `/renegociacoes/{id}`     | Busca uma renegociação específica pelo seu ID.    |
-| `GET`       | `/renegociacoes`          | Lista todas as renegociações.                     |
-| `PUT`       | `/renegociacoes/{id}`     | Atualiza uma renegociação existente.              |
-| `DELETE`    | `/renegociacoes/{id}`     | Deleta uma renegociação.                          |
+| Método | Endpoint | Descrição | Autenticação |
+| :--- | :--- | :--- | :--- |
+| **Autenticação** | | | |
+| `POST` | `/usuarios` | Cria um novo usuário. | Não |
+| `POST` | `/token` | Gera um token de acesso para um usuário. | Não |
+| **Filmes** | | | |
+| `GET` | `/filmes` | Lista todos os filmes disponíveis. | Não |
+| `GET` | `/filmes/{filme_id}` | Busca os detalhes de um filme específico. | Não |
+| **Avaliações (Comentários e Notas)** | | | |
+| `POST` | `/filmes/{filme_id}/avaliacoes` | Posta uma nova avaliação para um filme. | **Sim** |
+| `GET` | `/filmes/{filme_id}/avaliacoes` | Lista todas as avaliações de um filme. | Não |
+| `DELETE`| `/avaliacoes/{avaliacao_id}` | Deleta uma avaliação (se for o autor). | **Sim** |
+| **Favoritos** | | | |
+| `POST` | `/usuarios/me/favoritos/{filme_id}` | Adiciona um filme à lista de favoritos do usuário. | **Sim** |
+| `GET` | `/usuarios/me/favoritos` | Lista os filmes favoritos do usuário logado. | **Sim** |
+| `DELETE`| `/usuarios/me/favoritos/{filme_id}` | Remove um filme da lista de favoritos. | **Sim** |
+
 
 ---
 
@@ -145,12 +153,11 @@ O deploy é feito automaticamente a cada `push` para a branch `main`. As configu
 * **Comando de Build:** `pip install -r requirements.txt`
 * **Comando de Início (Start Command):** `gunicorn -w 4 -k uvicorn.workers.UvicornWorker src.main:app --bind 0.0.0.0:$PORT`
 
-O uso de `gunicorn` é recomendado para produção, e a aplicação é configurada para escutar na porta fornecida pela variável de ambiente `$PORT` da Render.
-
 ---
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-------
+---
+
