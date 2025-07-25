@@ -1,0 +1,14 @@
+# requirements.txt (Versão Mínima)
+
+# Framework principal para a criação da API
+fastapi
+
+# Servidor ASGI para rodar a aplicação FastAPI.
+# A opção [standard] inclui melhorias de performance recomendadas.
+uvicorn[standard]
+
+# ORM para interagir com o banco de dados SQL
+sqlalchemy
+
+# Biblioteca para manipulação de dados no formato JSON
+pydantic[email]
